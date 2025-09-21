@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block title %}Register - TalkToText Pro{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="auth-wrapper">
+    <div class="auth-branding">
+      <div class="brand-content">
+        <div class="brand-logo"><i class="fas fa-microphone-alt"></i></div>
+        <h1 class="brand-title">Join TalkToText Pro</h1>
+        <p class="brand-subtitle">Start your journey with AI-powered audio transcription and intelligent meeting notes.</p>
+        <div class="brand-features">
+          <div class="feature-item"><i class="fas fa-check-circle"></i><span>Free to Get Started</span></div>
+          <div class="feature-item"><i class="fas fa-check-circle"></i><span>Unlimited Transcriptions</span></div>
+          <div class="feature-item"><i class="fas fa-check-circle"></i><span>Export to PDF & Word</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-form-container">
+      <div class="auth-form-card">
+        <div class="form-header">
+          <h2 class="form-title">Create Account</h2>
+          <p class="form-subtitle">Join thousands of professionals using AI transcription</p>
+        </div>
+
+        <form method="POST" class="auth-form needs-validation" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="form-group">
+            <label for="fullname" class="form-label"><i class="fas fa-user"></i> Full Name</label>
+            <input type="text" class="form-control" id="fullname" name="fullname" placeholder="Enter your full name" required minlength="2">
+            <div class="invalid-feedback">Please provide your full name with at least 2 characters.</div>
+            <div class="form-help"><i class="fas fa-info-circle"></i> This will be displayed in your profile and dashboard</div>
+          </div>
+
+          <div class="form-group">
+            <label for="username" class="form-label"><i class="fas fa-at"></i> Username</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="Choose a unique username" required minlength="3">
+            <div class="invalid-feedback">Please provide a username with at least 3 characters.</div>
+            <div class="form-help"><i class="fas fa-info-circle"></i> Choose a unique username for your account</div>
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label"><i class="fas fa-lock"></i> Password</label>
+            <div class="password-input-group">
+              <input type="password" class="form-control" id="password" name="password" placeholder="Create a strong password" required minlength="6">
+              <button class="password-toggle" type="button" id="togglePassword"><i class="fas fa-eye"></i></button>
+            </div>
+            <div class="invalid-feedback">Please provide a password with at least 6 characters.</div>
+            <div class="password-requirements">
+              <div class="requirement-item" id="length-req"><i class="fas fa-times me-2"></i><span>At least 6 characters</span></div>
+              <div class="requirement-item" id="capital-req"><i class="fas fa-times me-2"></i><span>One capital letter (A-Z)</span></div>
+              <div class="requirement-item" id="special-req"><i class="fas fa-times me-2"></i><span>One special character (!@#$%^&*)</span></div>
+              <div class="requirement-item" id="number-req"><i class="fas fa-times me-2"></i><span>One number (0-9)</span></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword" class="form-label"><i class="fas fa-lock"></i> Confirm Password</label>
+            <div class="password-input-group">
+              <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+              <button class="password-toggle" type="button" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button>
+            </div>
+            <div class="invalid-feedback">Passwords do not match.</div>
+            <div class="password-match-status" id="password-match-status" style="display: none;">
+              <div class="match-item"><i class="fas fa-times me-2"></i><span> Passwords do not match</span></div>
+            </div>
+          </div>
+
+          <button type="submit" class="auth-submit-btn"><span class="btn-text">Create Account</span><i class="fas fa-user-plus"></i></button>
+        </form>
+
+        <div class="form-footer">
+          <p class="signup-text">Already have an account? <a href="{{ url_for('login') }}" class="signup-link">Sign in here</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Toggles
+document.getElementById('togglePassword').addEventListener('click', function() {
+  const f = document.getElementById('password'), i = this.querySelector('i');
+  if (f.type === 'password') { f.type = 'text'; i.classList.replace('fa-eye', 'fa-eye-slash'); }
+  else { f.type = 'password'; i.classList.replace('fa-eye-slash', 'fa-eye'); }
+});
+document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+  const f = document.getElementById('confirmPassword'), i = this.querySelector('i');
+  if (f.type === 'password') { f.type = 'text'; i.classList.replace('fa-eye', 'fa-eye-slash'); }
+  else { f.type = 'password'; i.classList.replace('fa-eye-slash', 'fa-eye'); }
+});
+
+// Strength UI
+document.getElementById('password').addEventListener('input', function() {
+  const p = this.value;
+  const lengthValid = p.length >= 6;
+  const capitalValid = /[A-Z]/.test(p);
+  const specialValid = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(p);
+  const numberValid = /[0-9]/.test(p);
+  
+  document.getElementById('length-req').classList.toggle('valid', lengthValid);
+  document.getElementById('capital-req').classList.toggle('valid', capitalValid);
+  document.getElementById('special-req').classList.toggle('valid', specialValid);
+  document.getElementById('number-req').classList.toggle('valid', numberValid);
+  
+  // Add all-valid class when all requirements are met
+  const requirementsContainer = document.querySelector('.password-requirements');
+  if (lengthValid && capitalValid && specialValid && numberValid) {
+    requirementsContainer.classList.add('all-valid');
+  } else {
+    requirementsContainer.classList.remove('all-valid');
+  }
+  
+  const confirm = document.getElementById('confirmPassword');
+  if (confirm.value) confirm.dispatchEvent(new Event('input'));
+});
+
+// Match UI
+document.getElementById('confirmPassword').addEventListener('input', function() {
+  const p = document.getElementById('password').value, c = this.value;
+  const box = document.getElementById('password-match-status'), item = box.querySelector('.match-item'), text = item.querySelector('span'), icon = item.querySelector('i');
+  if (c.length > 0) {
+    box.style.display = 'block';
+    if (p === c) { item.classList.add('valid'); box.classList.add('valid'); text.textContent = 'Passwords matched'; icon.classList.replace('fa-times','fa-check'); this.setCustomValidity(''); }
+    else { item.classList.remove('valid'); box.classList.remove('valid'); text.textContent = 'Passwords do not match'; icon.classList.replace('fa-check','fa-times'); this.setCustomValidity('Passwords do not match'); }
+  } else { box.style.display = 'none'; this.setCustomValidity(''); }
+});
+
+// Password validation function
+function validatePassword() {
+  const password = document.getElementById('password').value;
+  const lengthValid = password.length >= 6;
+  const capitalValid = /[A-Z]/.test(password);
+  const specialValid = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+  const numberValid = /[0-9]/.test(password);
+  
+  return lengthValid && capitalValid && specialValid && numberValid;
+}
+
+// Password match validation function
+function validatePasswordMatch() {
+  const password = document.getElementById('password').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  return password === confirmPassword && password.length > 0;
+}
+
+// Validation
+(function() {
+  'use strict';
+  window.addEventListener('load', function() {
+    Array.from(document.getElementsByClassName('needs-validation')).forEach(function(form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Check password requirements
+        if (!validatePassword()) {
+          alert('Please ensure your password meets all requirements: at least 6 characters, one capital letter, one special character, and one number.');
+          return false;
+        }
+        
+        // Check password match
+        if (!validatePasswordMatch()) {
+          alert('Passwords do not match. Please check and try again.');
+          return false;
+        }
+        
+        // If all validations pass, submit the form
+        if (form.checkValidity() === true) {
+          form.submit();
+        } else {
+          form.classList.add('was-validated');
+        }
+      }, false);
+    });
+  }, false);
+})();
+</script>
+{% endblock %}

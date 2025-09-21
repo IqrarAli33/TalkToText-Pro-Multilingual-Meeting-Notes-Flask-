@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Meeting Notes - TalkToText Pro{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col-12 d-flex align-items-center justify-content-between">
+    <div>
+      <h2 class="fw-bold text-dark mb-1"><i class="fas fa-file-alt me-2 text-primary"></i>Meeting Notes</h2>
+      <p class="text-muted mb-0">AI-generated structured notes from your audio</p>
+    </div>
+    <a href="{{ url_for('history') }}" class="btn btn-primary rounded-3"><i class="fas fa-arrow-left me-2"></i>Back to History</a>
+  </div>
+</div>
+
+<!-- Action + Language -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card shadow-sm border-0 rounded-4">
+      <div class="card-body p-4">
+        <div class="row align-items-center g-3">
+          <div class="col-md-6">
+            <h5 class="fw-semibold mb-2"><i class="fas fa-language me-2 text-primary"></i>Language</h5>
+            {% if available_langs|length > 1 %}
+              <div class="btn-group" role="group">
+                {% for code in available_langs %}
+                  <a class="btn btn-sm {% if code == selected_lang %}btn-primary{% else %}btn-outline-primary{% endif %} rounded-3 me-2"
+                     href="{{ url_for('view_notes', meeting_id=meeting_id) }}?lang={{ code }}">
+                    {{ code|upper }}
+                  </a>
+                {% endfor %}
+              </div>
+            {% else %}
+              <span class="badge bg-light text-dark border">{{ selected_lang|upper }}</span>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6 text-md-end">
+            <h5 class="fw-semibold mb-2"><i class="fas fa-download me-2 text-primary"></i>Export Options</h5>
+            <div class="btn-group" role="group">
+              <a href="{{ url_for('download', meeting_id=meeting_id, format='pdf') }}?lang={{ selected_lang }}" class="btn btn-danger rounded-3 me-2"><i class="fas fa-file-pdf me-2"></i>PDF</a>
+              <a href="{{ url_for('download', meeting_id=meeting_id, format='docx') }}?lang={{ selected_lang }}" class="btn btn-primary rounded-3"><i class="fas fa-file-word me-2"></i>Word</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notes -->
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm border-0 rounded-4">
+      <div class="card-body p-5">
+        <div class="prose notes-content">{{ notes_html | safe }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Share -->
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card shadow-sm border-0 rounded-4">
+      <div class="card-body p-4">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <h5 class="fw-semibold mb-2"><i class="fas fa-share-alt me-2 text-primary"></i>Share Notes</h5>
+            <p class="text-muted mb-0">Send a PDF copy via email</p>
+          </div>
+          <div class="col-md-6">
+            <form method="POST" action="{{ url_for('share_meeting', meeting_id=meeting_id) }}" class="d-flex">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="lang" value="{{ selected_lang }}">
+              <div class="input-group">
+                <span class="input-group-text bg-light border-2"><i class="fas fa-envelope text-primary"></i></span>
+                <input type="email" name="email" class="form-control border-2 rounded-start-3" placeholder="Enter recipient email" required>
+                <button class="btn btn-primary rounded-end-3" type="submit"><i class="fas fa-paper-plane me-2"></i>Send</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* same styles you shared… (kept) */
+.notes-content{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.7;color:#2d3748}
+.notes-content h1{color:#2d3748;font-weight:700;margin-bottom:1.5rem;padding-bottom:.5rem;border-bottom:3px solid #3182ce}
+.notes-content h2{color:#4a5568;font-weight:600;margin-top:2rem;margin-bottom:1rem;font-size:1.25rem}
+.notes-content h3{color:#4a5568;font-weight:600;margin-top:1.5rem;margin-bottom:.75rem}
+.notes-content ul{margin-bottom:1rem;padding-left:1.5rem}
+.notes-content li{margin-bottom:.5rem;line-height:1.6}
+.notes-content strong{color:#2d3748;font-weight:600}
+.notes-content pre{background-color:#f7fafc;border:1px solid #e2e8f0;border-radius:.5rem;padding:1rem;overflow-x:auto;font-family:'Monaco','Menlo','Ubuntu Mono',monospace;font-size:.875rem;line-height:1.5}
+.notes-content code{background-color:#f7fafc;border:1px solid #e2e8f0;border-radius:.25rem;padding:.125rem .25rem;font-family:'Monaco','Menlo','Ubuntu Mono',monospace;font-size:.875rem}
+.notes-content blockquote{border-left:4px solid #3182ce;background-color:#f7fafc;margin:1.5rem 0;padding:1rem 1.5rem;border-radius:0 .5rem .5rem 0}
+.notes-content table{width:100%;border-collapse:collapse;margin:1.5rem 0}
+.notes-content th,.notes-content td{border:1px solid #e2e8f0;padding:.75rem;text-align:left}
+.notes-content th{background-color:#f7fafc;font-weight:600;color:#2d3748}
+</style>
+{% endblock %}

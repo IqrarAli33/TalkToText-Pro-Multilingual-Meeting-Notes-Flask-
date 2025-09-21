@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}TalkToText Pro{% endblock %}</title>
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Fonts & Custom CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gradient-primary">
+  <!-- Nav -->
+  <nav class="navbar navbar-expand-lg navbar-modern">
+    <div class="navbar-background"></div>
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+        <div class="brand-container">
+          <div class="brand-icon">
+            <i class="fas fa-microphone-alt"></i>
+            <div class="icon-pulse"></div>
+          </div>
+          <div class="brand-text">
+            <span class="brand-pro">Pro</span>
+            <span class="brand-name">TalkToText</span>
+          </div>
+        </div>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="hamburger">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('upload') }}">
+              <div class="nav-icon"><i class="fas fa-upload"></i></div>
+              <span class="nav-text">Upload Audio</span>
+              <div class="nav-indicator"></div>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('history') }}">
+              <div class="nav-icon"><i class="fas fa-history"></i></div>
+              <span class="nav-text">History</span>
+              <div class="nav-indicator"></div>
+            </a>
+          </li>
+        </ul>
+        <ul class="navbar-nav">
+          {% if current_user.is_authenticated %}
+          <li class="nav-item">
+            <div class="user-section">
+              <div class="user-info">
+                <span class="user-name">{{ current_user.fullname or current_user.username }}</span>
+              </div>
+              <a href="{{ url_for('logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+              </a>
+            </div>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <div class="auth-section">
+              <a href="{{ url_for('login') }}" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login</span>
+              </a>
+              <a href="{{ url_for('register') }}" class="register-btn">
+                <i class="fas fa-user-plus"></i>
+                <span>Register</span>
+              </a>
+            </div>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="container py-4">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="row">
+            <div class="col-12">
+              {% for message in messages %}
+              <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fas fa-info-circle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer-modern">
+    <div class="footer-background"></div>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-single-line">
+          <div class="footer-left">
+            <div class="footer-logo">
+              <div class="logo-icon"><i class="fas fa-microphone-alt"></i></div>
+              <div class="logo-text">
+                <span class="logo-pro">Pro</span>
+                <span class="logo-name">TalkToText</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="footer-center">
+            <div class="footer-copyright">
+              <p>&copy; 2024 TalkToText Pro. All rights reserved.</p>
+            </div>
+          </div>
+          
+          <div class="footer-right">
+            <div class="tech-badges">
+              <span class="tech-badge"><i class="fas fa-robot"></i> Powered by AI</span>
+              <span class="tech-badge"><i class="fab fa-python"></i> Built with Flask</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

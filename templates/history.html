@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% block title %}History - TalkToText Pro{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col-12 d-flex align-items-center justify-content-between">
+    <div>
+      <h2 class="fw-bold text-dark mb-1"><i class="fas fa-history me-2 text-white"></i>Transcription History</h2>
+      <p class="text-muted mb-0">Manage and view your previous transcriptions</p>
+    </div>
+    <a href="{{ url_for('upload') }}" class="btn btn-primary rounded-3"><i class="fas fa-plus me-2"></i>New Transcription</a>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-4 mb-4">
+  <div class="card-body p-4">
+    <form method="get" class="row g-3">
+      <div class="col-md-4">
+        <label for="search" class="form-label fw-semibold"><i class="fas fa-search me-2 text-primary"></i>Search</label>
+        <input type="text" name="q" value="{{ q }}" class="form-control border-2 rounded-3" id="search" placeholder="Search by filename...">
+      </div>
+      <div class="col-md-3">
+        <label for="language" class="form-label fw-semibold"><i class="fas fa-language me-2 text-primary"></i>Output Language</label>
+        <select name="lang" class="form-select border-2 rounded-3" id="language">
+          <option value="">All languages</option>
+          {% if SUPPORTED_OUTPUT_LANGS %}
+            {% for code, name in SUPPORTED_OUTPUT_LANGS.items() %}
+              <option value="{{ code }}" {{ 'selected' if lang==code }}>{{ name }}</option>
+            {% endfor %}
+          {% else %}
+            <!-- Fallback if dict not provided -->
+            <option value="en" {{ 'selected' if lang=='en' }}>English</option>
+            <option value="fr" {{ 'selected' if lang=='fr' }}>French</option>
+            <option value="ur" {{ 'selected' if lang=='ur' }}>Urdu</option>
+            <option value="es" {{ 'selected' if lang=='es' }}>Spanish</option>
+            <option value="de" {{ 'selected' if lang=='de' }}>German</option>
+            <option value="it" {{ 'selected' if lang=='it' }}>Italian</option>
+            <option value="pt" {{ 'selected' if lang=='pt' }}>Portuguese</option>
+          {% endif %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold"><i class="fas fa-filter me-2 text-primary"></i>Options</label>
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" id="inclDel" name="include_deleted" value="1" {{ 'checked' if include_deleted }}>
+          <label class="form-check-label fw-semibold" for="inclDel">Show deleted items</label>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">&nbsp;</label>
+        <button class="btn btn-primary w-100 rounded-3" type="submit"><i class="fas fa-search me-2"></i>Filter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-4">
+  <div class="card-body p-0">
+    {% if meetings|length > 0 %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th class="border-0 fw-semibold py-3 px-4"><i class="fas fa-file-audio me-2 text-primary"></i>File</th>
+            <th class="border-0 fw-semibold py-3"><i class="fas fa-language me-2 text-primary"></i>Output Languages</th>
+            <th class="border-0 fw-semibold py-3"><i class="fas fa-clock me-2 text-primary"></i>Date</th>
+            <th class="border-0 fw-semibold py-3"><i class="fas fa-info-circle me-2 text-primary"></i>Status</th>
+            <th class="border-0 fw-semibold py-3 text-end"><i class="fas fa-cogs me-2 text-primary"></i>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in meetings %}
+          <tr class="border-bottom">
+            <td class="py-3 px-4">
+              <div class="d-flex align-items-center">
+                <div class="icon-circle bg-primary text-white me-3"><i class="fas fa-file-audio"></i></div>
+                <div>
+                  <div class="fw-semibold text-dark">{{ m.audio_filename }}</div>
+                  <small class="text-muted">Audio file</small>
+                </div>
+              </div>
+            </td>
+            <td class="py-3">
+              {% if m.target_languages and m.target_languages|length > 0 %}
+                <div class="d-flex flex-wrap gap-1">
+                  {% for lang in m.target_languages %}
+                    <span class="badge bg-primary text-white">{{ lang|upper }}</span>
+                  {% endfor %}
+                </div>
+              {% elif m.notes_by_lang and m.notes_by_lang|length > 0 %}
+                <div class="d-flex flex-wrap gap-1">
+                  {% for lang in m.notes_by_lang.keys() %}
+                    <span class="badge bg-success text-white">{{ lang|upper }}</span>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <span class="badge bg-light text-dark border">
+                  {{ (m.selected_source_language or m.original_language or 'en')|upper }}
+                </span>
+              {% endif %}
+            </td>
+            <td class="py-3">
+              <div class="text-muted">{{ m.timestamp.strftime('%b %d, %Y') if m.timestamp else 'Unknown' }}</div>
+              <small class="text-muted">{{ m.timestamp.strftime('%I:%M %p') if m.timestamp else '' }}</small>
+            </td>
+            <td class="py-3">
+              {% if m.deleted %}
+                <span class="badge bg-secondary"><i class="fas fa-trash me-1"></i>Trash</span>
+              {% else %}
+                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Active</span>
+              {% endif %}
+            </td>
+            <td class="py-3 text-end">
+              <div class="btn-group" role="group">
+                {% if not m.deleted %}
+                  <a class="btn btn-sm btn-outline-primary rounded-3 me-1" href="{{ url_for('view_notes', meeting_id=m._id_str) }}" title="View Notes">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-outline-secondary rounded-3 dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Download">
+                      <i class="fas fa-download"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="{{ url_for('download', meeting_id=m._id_str, format='pdf') }}"><i class="fas fa-file-pdf me-2 text-danger"></i>PDF</a></li>
+                      <li><a class="dropdown-item" href="{{ url_for('download', meeting_id=m._id_str, format='docx') }}"><i class="fas fa-file-word me-2 text-primary"></i>Word</a></li>
+                    </ul>
+                  </div>
+                  <form class="d-inline" method="post" action="{{ url_for('delete_meeting', meeting_id=m._id_str) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-sm btn-outline-danger rounded-3 ms-1" onclick="return confirm('Move to trash?')" title="Delete"><i class="fas fa-trash"></i></button>
+                  </form>
+                {% else %}
+                  <form class="d-inline" method="post" action="{{ url_for('restore_meeting', meeting_id=m._id_str) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-sm btn-outline-success rounded-3 me-1" title="Restore"><i class="fas fa-undo"></i></button>
+                  </form>
+                  <form class="d-inline" method="post" action="{{ url_for('purge_meeting', meeting_id=m._id_str) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-sm btn-danger rounded-3" onclick="return confirm('Delete forever? This cannot be undone.')" title="Permanent Delete"><i class="fas fa-times"></i></button>
+                  </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+      <div class="icon-circle bg-light text-muted mx-auto mb-3"><i class="fas fa-inbox fa-3x"></i></div>
+      <h4 class="fw-semibold text-muted mb-2">No transcriptions found</h4>
+      <p class="text-muted mb-4">Start by uploading your first audio file</p>
+      <a href="{{ url_for('upload') }}" class="btn btn-primary rounded-3"><i class="fas fa-upload me-2"></i>Upload Audio</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if pages > 1 %}
+<div class="row mt-4">
+  <div class="col-12">
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item {{ 'disabled' if page <= 1 }}">
+          <a class="page-link border-0 rounded-3 me-1" href="{{ url_for('history', page=page-1 if page>1 else 1, q=q, lang=lang, include_deleted=1 if include_deleted else None) }}">
+            <i class="fas fa-chevron-left me-1"></i>Previous
+          </a>
+        </li>
+
+        {% for page_num in range(1, pages + 1) %}
+          {% if page_num == page %}
+            <li class="page-item active"><span class="page-link bg-primary border-0 rounded-3 mx-1">{{ page_num }}</span></li>
+          {% elif page_num <= 3 or page_num > pages - 3 or (page_num >= page - 1 and page_num <= page + 1) %}
+            <li class="page-item">
+              <a class="page-link border-0 rounded-3 mx-1" href="{{ url_for('history', page=page_num, q=q, lang=lang, include_deleted=1 if include_deleted else None) }}">{{ page_num }}</a>
+            </li>
+          {% elif page_num == 4 and page > 5 %}
+            <li class="page-item disabled"><span class="page-link border-0">...</span></li>
+          {% elif page_num == pages - 3 and page < pages - 4 %}
+            <li class="page-item disabled"><span class="page-link border-0">...</span></li>
+          {% endif %}
+        {% endfor %}
+
+        <li class="page-item {{ 'disabled' if page >= pages }}">
+          <a class="page-link border-0 rounded-3 ms-1" href="{{ url_for('history', page=page+1 if page<pages else pages, q=q, lang=lang, include_deleted=1 if include_deleted else None) }}">
+            Next<i class="fas fa-chevron-right ms-1"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="text-center text-muted mt-3">
+      <small>Showing {{ (page - 1) * 10 + 1 }} to {{ page * 10 if page * 10 <= total else total }} of {{ total }} results</small>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

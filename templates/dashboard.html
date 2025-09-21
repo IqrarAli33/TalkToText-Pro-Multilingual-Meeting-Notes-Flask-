@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - TalkToText Pro{% endblock %}
+
+{% block content %}
+<!-- Welcome Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="welcome-hero">
+            <div class="hero-background">
+                <div class="hero-particles">
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                </div>
+                <div class="hero-gradient"></div>
+            </div>
+            <div class="hero-content">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <div class="welcome-text">
+                            <div class="welcome-badge">
+                                <i class="fas fa-sparkles"></i>
+                                <span>AI-Powered Transcription</span>
+                            </div>
+                            <h1 class="welcome-title">
+                                <span class="title-line">Welcome back,</span>
+                                <span class="username-highlight">{{ current_user.fullname or current_user.username }}!</span>
+                            </h1>
+                            <p class="welcome-description">
+                                Transform your audio recordings into professional meeting notes with AI-powered transcription and analysis.
+                            </p>
+                            <div class="welcome-stats">
+                                <div class="stat-item">
+                                    <div class="stat-number">99%</div>
+                                    <div class="stat-label">Accuracy</div>
+                                </div>
+                                <!-- <div class="stat-item">
+                                    <div class="stat-number">50+</div>
+                                    <div class="stat-label">Languages</div>
+                                </div> -->
+                                <div class="stat-item">
+                                    <div class="stat-number">24/7</div>
+                                    <div class="stat-label">Available</div>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('upload') }}" class="welcome-btn">
+                                <span class="btn-content">
+                                    <i class="fas fa-upload"></i>
+                                    <span>Start New Transcription</span>
+                                </span>
+                                <div class="btn-shine"></div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                        <div class="hero-visual">
+                            <div class="brain-container">
+                                <div class="brain-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="brain-rings">
+                                    <div class="ring ring-1"></div>
+                                    <div class="ring ring-2"></div>
+                                    <div class="ring ring-3"></div>
+                                </div>
+                                <div class="floating-elements">
+                                    <div class="float-element element-1">
+                                        <i class="fas fa-microphone"></i>
+                                    </div>
+                                    <div class="float-element element-2">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="float-element element-3">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <div class="float-element element-4">
+                                        <i class="fas fa-magic"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="section-header text-center mb-5">
+            <h3 class="section-title">
+                <span class="title-icon">
+                    <i class="fas fa-bolt"></i>
+                </span>
+                Quick Actions
+            </h3>
+            <p class="section-subtitle">Choose your next step to get started</p>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="quick-action-card upload-card">
+            <div class="card-glow"></div>
+            <div class="card-content">
+                <div class="action-icon">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-upload"></i>
+                        <div class="icon-pulse"></div>
+                    </div>
+                </div>
+                <div class="action-content">
+                    <h4 class="action-title">Upload Audio</h4>
+                    <p class="action-description">
+                        Upload your audio files or paste URLs to start transcribing with AI
+                    </p>
+                    <div class="action-features">
+                        <span class="feature-tag">MP3, WAV, MP4</span>
+                        <span class="feature-tag">Google Drive</span>
+                        <span class="feature-tag">Dropbox</span>
+                    </div>
+                </div>
+                <div class="action-footer">
+                    <a href="{{ url_for('upload') }}" class="action-btn">
+                        <span>Get Started</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="quick-action-card history-card">
+            <div class="card-glow"></div>
+            <div class="card-content">
+                <div class="action-icon">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-history"></i>
+                        <div class="icon-pulse"></div>
+                    </div>
+                </div>
+                <div class="action-content">
+                    <h4 class="action-title">View History</h4>
+                    <p class="action-description">
+                        Browse and manage your previous transcriptions and meeting notes
+                    </p>
+                    <div class="action-features">
+                        <span class="feature-tag">Search & Filter</span>
+                        <span class="feature-tag">Export Options</span>
+                        <span class="feature-tag">Organize</span>
+                    </div>
+                </div>
+                <div class="action-footer">
+                    <a href="{{ url_for('history') }}" class="action-btn">
+                        <span>View All</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="quick-action-card export-card">
+            <div class="card-glow"></div>
+            <div class="card-content">
+                <div class="action-icon">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-download"></i>
+                        <div class="icon-pulse"></div>
+                    </div>
+                </div>
+                <div class="action-content">
+                    <h4 class="action-title">Export Notes</h4>
+                    <p class="action-description">
+                        Download your notes in multiple formats for easy sharing
+                    </p>
+                    <div class="action-features">
+                        <span class="feature-tag">PDF Export</span>
+                        <span class="feature-tag">Word Export</span>
+                        <span class="feature-tag">Email Share</span>
+                    </div>
+                </div>
+                <div class="action-footer">
+                    <a href="{{ url_for('history') }}" class="action-btn">
+                        <span>Export Now</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row">
+    <div class="col-12">
+        <div class="features-section">
+            <div class="features-header">
+                <div class="features-title-container">
+                    <div class="title-icon-wrapper">
+                        <i class="fas fa-star"></i>
+                        <div class="icon-glow"></div>
+                    </div>
+                    <h3 class="features-title">Powerful Features</h3>
+                </div>
+                <p class="features-subtitle">Discover what makes our platform exceptional</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card feature-card-1">
+                    <div class="card-background"></div>
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <div class="icon-wrapper">
+                                <i class="fas fa-language"></i>
+                                <div class="icon-pulse"></div>
+                            </div>
+                        </div>
+                        <div class="feature-info">
+                            <h5 class="feature-title">Multi-Language Support</h5>
+                            <p class="feature-description">
+                                Transcribe audio in multiple languages with automatic translation to English
+                            </p>
+                            <div class="feature-tags">
+                                <span class="tag">10+ Languages</span>
+                                <span class="tag">Auto Translate</span>
+                            </div>
+                        </div>
+                        <div class="feature-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card feature-card-2">
+                    <div class="card-background"></div>
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <div class="icon-wrapper">
+                                <i class="fas fa-robot"></i>
+                                <div class="icon-pulse"></div>
+                            </div>
+                        </div>
+                        <div class="feature-info">
+                            <h5 class="feature-title">AI-Powered Analysis</h5>
+                            <p class="feature-description">
+                                Generate structured meeting notes with key points and action items
+                            </p>
+                            <div class="feature-tags">
+                                <span class="tag">Smart Analysis</span>
+                                <span class="tag">Action Items</span>
+                            </div>
+                        </div>
+                        <div class="feature-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card feature-card-3">
+                    <div class="card-background"></div>
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <div class="icon-wrapper">
+                                <i class="fas fa-video"></i>
+                                <div class="icon-pulse"></div>
+                            </div>
+                        </div>
+                        <div class="feature-info">
+                            <h5 class="feature-title">Meeting Platform Integration</h5>
+                            <p class="feature-description">
+                                Direct integration with Teams, Zoom, and Google Meet recordings
+                            </p>
+                            <div class="feature-tags">
+                                <span class="tag">Microsoft Teams</span>
+                                <span class="tag">Zoom</span>
+                                <span class="tag">Google Meet</span>
+                            </div>
+                        </div>
+                        <div class="feature-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card feature-card-4">
+                    <div class="card-background"></div>
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <div class="icon-wrapper">
+                                <i class="fas fa-file-export"></i>
+                                <div class="icon-pulse"></div>
+                            </div>
+                        </div>
+                        <div class="feature-info">
+                            <h5 class="feature-title">Export Options</h5>
+                            <p class="feature-description">
+                                Download notes as PDF or Word documents
+                            </p>
+                            <div class="feature-tags">
+                                <span class="tag">PDF Export</span>
+                                <span class="tag">Word Export</span>
+                            </div>
+                        </div>
+                        <div class="feature-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% block title %}Upload Audio - TalkToText Pro{% endblock %}
+
+{% block content %}
+<div class="upload-page-container">
+  <div class="upload-header">
+    <div class="header-content">
+      <div class="animated-icon-container">
+        <div class="icon-wrapper">
+          <i class="fas fa-upload"></i>
+          <div class="icon-ripple"></div>
+          <div class="icon-particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div>
+        </div>
+      </div>
+      <h1 class="page-title">Upload Meeting Audio</h1>
+      <p class="page-subtitle">Transform your audio into intelligent meeting notes with AI-powered transcription</p>
+      <div class="header-features">
+        <span class="feature-badge"><i class="fas fa-magic"></i> AI-Powered</span>
+        <span class="feature-badge"><i class="fas fa-globe"></i> Multi-Language</span>
+        <span class="feature-badge"><i class="fas fa-cloud"></i> Cloud Integration</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="upload-form-container">
+    <div class="upload-form-card">
+      <div class="form-header">
+        <h3 class="form-title"><i class="fas fa-file-upload"></i> Choose Your Audio Source</h3>
+        <p class="form-subtitle">Select how you'd like to provide your audio file</p>
+      </div>
+
+      <form id="uploadForm" method="POST" enctype="multipart/form-data" class="upload-form needs-validation" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- File -->
+        <div class="upload-section">
+          <div class="section-header">
+            <div class="section-icon"><i class="fas fa-file-audio"></i></div>
+            <div class="section-content">
+              <h4 class="section-title">Upload Audio File</h4>
+              <p class="section-description">Drag and drop your audio file or click to browse</p>
+            </div>
+          </div>
+
+          <div class="upload-area" id="uploadArea">
+            <div class="upload-content">
+              <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i><div class="upload-pulse"></div></div>
+              <h5 class="upload-title">Drop your audio file here</h5>
+              <p class="upload-subtitle">or click to browse your device</p>
+              <input type="file" class="file-input d-none" id="audio" name="audio" accept=".mp3,.wav,.mp4">
+              <button type="button" class="browse-btn" onclick="event.stopPropagation(); document.getElementById('audio').click()">
+                <i class="fas fa-folder-open"></i> Choose File
+              </button>
+            </div>
+
+            <div class="file-info d-none" id="fileInfo">
+              <div class="file-icon"><i class="fas fa-file-audio"></i></div>
+              <div class="file-details">
+                <p class="file-name" id="fileName"></p>
+                <small class="file-size" id="fileSize"></small>
+              </div>
+              <button type="button" class="remove-file" onclick="event.stopPropagation(); clearFile()"><i class="fas fa-times"></i></button>
+            </div>
+          </div>
+
+          <div class="upload-info"><i class="fas fa-info-circle"></i><span>Supported formats: MP3, WAV, MP4 (Max 50MB)</span></div>
+        </div>
+
+        <!-- Divider -->
+        <div class="form-divider"><div class="divider-line"></div><span class="divider-text">OR</span><div class="divider-line"></div></div>
+
+        <!-- URL -->
+        <div class="url-section">
+          <div class="section-header">
+            <div class="section-icon"><i class="fas fa-link"></i></div>
+            <div class="section-content">
+              <h4 class="section-title">Paste Meeting Recording URL</h4>
+              <p class="section-description">Enter a link to your Teams, Zoom, or Google Meet recording</p>
+            </div>
+          </div>
+
+          <div class="url-input-group">
+            <div class="input-icon"><i class="fas fa-globe"></i></div>
+            <input type="url" class="url-input" id="meeting_url" name="meeting_url" placeholder="https://teams.microsoft.com/... or https://zoom.us/... or https://meet.google.com/...">
+          </div>
+
+          <div class="url-info"><i class="fas fa-video"></i><span>Works with Microsoft Teams, Zoom, Google Meet recordings, or direct media URLs</span></div>
+        </div>
+
+        <!-- Source language (REQUIRED) -->
+        <div class="language-section">
+          <div class="section-header">
+            <div class="section-icon"><i class="fas fa-language"></i></div>
+            <div class="section-content">
+              <h4 class="section-title">Original Language</h4>
+              <p class="section-description">Select the language for better accuracy</p>
+            </div>
+          </div>
+
+          <div class="language-selector">
+            {% if SUPPORTED_INPUT_LANGS %}
+              <select class="language-select" id="language" name="language" required>
+                {% for code, name in SUPPORTED_INPUT_LANGS.items() %}
+                  <option value="{{ code }}">{{ name }}</option>
+                {% endfor %}
+              </select>
+            {% else %}
+              <!-- Fallback if dict not provided -->
+              <select class="language-select" id="language" name="language" required>
+                <option value="en">English</option><option value="fr">French</option><option value="es">Spanish</option>
+                <option value="de">German</option><option value="it">Italian</option><option value="pt">Portuguese</option>
+                <option value="ru">Russian</option><option value="ja">Japanese</option><option value="ko">Korean</option><option value="zh">Chinese</option>
+              </select>
+            {% endif %}
+            <div class="select-arrow"><i class="fas fa-chevron-down"></i></div>
+          </div>
+
+          <div class="language-info"><i class="fas fa-info-circle"></i><span>Select the language of your audio for better transcription accuracy</span></div>
+        </div>
+
+        <!-- Output languages (OPTIONAL) -->
+        <div class="language-section">
+          <div class="section-header">
+            <div class="section-icon"><i class="fas fa-language"></i></div>
+            <div class="section-content">
+              <h4 class="section-title">Output Languages (optional)</h4>
+              <p class="section-description">Pick one or more languages for generated notes. Leave empty to default to English.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            {% if SUPPORTED_OUTPUT_LANGS %}
+              {% for code, name in SUPPORTED_OUTPUT_LANGS.items() %}
+                <div class="col-6 col-md-4 col-lg-3 mb-2">
+                  <label class="form-check">
+                    <input class="form-check-input" type="checkbox" name="target_languages" value="{{ code }}">
+                    <span class="form-check-label">{{ name }}</span>
+                  </label>
+                </div>
+              {% endfor %}
+            {% else %}
+              <!-- Fallback fixed options -->
+              {% for code,name in {'en':'English','fr':'French','es':'Spanish','de':'German','it':'Italian','pt':'Portuguese'}.items() %}
+                <div class="col-6 col-md-4 col-lg-3 mb-2">
+                  <label class="form-check">
+                    <input class="form-check-input" type="checkbox" name="target_languages" value="{{ code }}">
+                    <span class="form-check-label">{{ name }}</span>
+                  </label>
+                </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="submit-section">
+          <button id="submitBtn" type="submit" class="submit-btn">
+            <span class="btn-content"><i class="fas fa-magic"></i><span class="btn-text">Start Transcription</span></span>
+            <div class="btn-loading d-none"><div class="spinner"></div><span>Processing...</span></div>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById('uploadForm');
+  const fileInput = document.getElementById('audio');
+  const urlInput = document.getElementById('meeting_url');
+  const submitBtn = document.getElementById('submitBtn');
+  const uploadArea = document.getElementById('uploadArea');
+  const uploadContent = document.querySelector('.upload-content');
+  const fileInfo = document.getElementById('fileInfo');
+  const fileName = document.getElementById('fileName');
+  const fileSize = document.getElementById('fileSize');
+
+  // Only make the upload area clickable, not the browse button area
+  uploadArea.addEventListener('click', (e) => {
+    // Don't trigger if clicking on the browse button (it has its own handler)
+    if (!e.target.closest('.browse-btn')) {
+      fileInput.click();
+    }
+  });
+  
+  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('border-primary','bg-light'); });
+  uploadArea.addEventListener('dragleave', e => { e.preventDefault(); uploadArea.classList.remove('border-primary','bg-light'); });
+  uploadArea.addEventListener('drop', e => {
+    e.preventDefault(); uploadArea.classList.remove('border-primary','bg-light');
+    const files = e.dataTransfer.files; if (files.length > 0) { fileInput.files = files; handleFileSelect(); }
+  });
+
+  fileInput.addEventListener('change', () => { if (fileInput.files.length > 0) { handleFileSelect(); urlInput.value = ''; } });
+  urlInput.addEventListener('input', () => { if (urlInput.value.trim() !== '') { fileInput.value = ''; uploadContent.classList.remove('d-none'); fileInfo.classList.add('d-none'); } });
+
+  function handleFileSelect() {
+    const f = fileInput.files[0];
+    if (f) { fileName.textContent = f.name; fileSize.textContent = formatSize(f.size); uploadContent.classList.add('d-none'); fileInfo.classList.remove('d-none'); }
+  }
+  window.clearFile = function() { 
+    fileInput.value = ''; 
+    uploadContent.classList.remove('d-none'); 
+    fileInfo.classList.add('d-none'); 
+    urlInput.value = ''; 
+    // Reset form validation state
+    form.classList.remove('was-validated');
+  }
+
+  function formatSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024, sizes = ['Bytes','KB','MB','GB']; const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    // Check form validity first
+    if (!form.checkValidity()) {
+      form.classList.add('was-validated');
+      return;
+    }
+    
+    const hasFile = fileInput.files.length > 0;
+    const hasUrl = urlInput.value.trim() !== '';
+    
+    if (!hasFile && !hasUrl) { 
+      showAlert('Please provide a file OR a media URL (.mp3/.wav/.mp4 or Google Drive/Dropbox link).', 'warning'); 
+      return; 
+    }
+    
+    if (hasUrl) {
+      const u = urlInput.value.trim();
+      const okExt = /\.(mp3|wav|mp4)(\?|$)/i.test(u);
+      const isDrive = u.includes('drive.google.com');
+      const isDropbox = u.includes('dropbox.com');
+      if (!okExt && !isDrive && !isDropbox) { 
+        console.warn('URL may not be direct media, backend will try.'); 
+      }
+    }
+    
+    // Disable submit button and show loading
+    submitBtn.disabled = true;
+    submitBtn.querySelector('.btn-content').classList.add('d-none');
+    submitBtn.querySelector('.btn-loading').classList.remove('d-none');
+    
+    // Submit the form
+    form.submit();
+  });
+
+  function showAlert(message, type = 'info') {
+    const div = document.createElement('div');
+    div.className = `alert alert-${type} alert-dismissible fade show`;
+    div.innerHTML = `<i class="fas fa-info-circle me-2"></i>${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+    form.insertBefore(div, form.firstChild);
+  }
+})();
+</script>
+{% endblock %}

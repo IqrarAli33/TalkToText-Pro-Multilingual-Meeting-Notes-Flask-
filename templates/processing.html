@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Processing… - TalkToText Pro{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0 rounded-4">
+      <div class="card-body p-5 text-center">
+        <div class="mb-3">
+          <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+        </div>
+        <h4 class="fw-semibold mb-2">Processing your audio…</h4>
+        <p class="text-muted mb-4">We’re transcribing, cleaning, translating and generating notes.</p>
+        <div class="progress mb-3" style="height: 14px;">
+          <div id="bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%;">0%</div>
+        </div>
+        <div id="status" class="text-muted">Queued</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function poll(){
+  const bar = document.getElementById('bar');
+  const status = document.getElementById('status');
+
+  fetch("{{ url_for('status', job_id=job_id) }}", {credentials: 'same-origin'})
+    .then(r => r.json())
+    .then(j => {
+      if (j.error) {
+        status.textContent = "Error: " + j.error;
+        bar.classList.remove('progress-bar-animated');
+        return;
+      }
+      bar.style.width = (j.percent || 0) + "%";
+      bar.textContent = (j.percent || 0) + "%";
+      status.textContent = j.message || '';
+      if (j.done) {
+        if (j.error) {
+          status.textContent = "Error: " + j.error;
+        } else if (j.meeting_id) {
+          window.location = "{{ url_for('view_notes', meeting_id='__MID__') }}".replace('__MID__', j.meeting_id);
+        }
+        return;
+      }
+      setTimeout(poll, 1200);
+    })
+    .catch(() => setTimeout(poll, 2000));
+})();
+</script>
+{% endblock %}
