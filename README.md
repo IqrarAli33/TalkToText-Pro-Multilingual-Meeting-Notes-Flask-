@@ -133,5 +133,3 @@ python app.py
 - Cookies set `HttpOnly` + `SameSite=Lax` (+ `Secure` in production).
 - Uploaded files saved under `uploads/`; consider periodic cleanup/purge in prod.
 
-## License
-Private / internal (update as needed).
